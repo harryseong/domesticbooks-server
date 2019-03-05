@@ -28,7 +28,7 @@ public class User {
     private String password;
 
     @ManyToMany(cascade = CascadeType.PERSIST)
-    @JoinTable(name = "user_book", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "book_id"))
+    @JoinTable(name = "library", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "book_id"))
     @LazyCollection(LazyCollectionOption.TRUE)
     @JsonIgnore
     private List<Book> books;

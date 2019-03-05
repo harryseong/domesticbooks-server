@@ -36,7 +36,7 @@ public class Book {
     private List<Category> categories;
 
     @ManyToMany(cascade = CascadeType.PERSIST)
-    @JoinTable(name = "user_book", joinColumns = @JoinColumn(name = "book_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+    @JoinTable(name = "library", joinColumns = @JoinColumn(name = "book_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
     @LazyCollection(LazyCollectionOption.TRUE)
     @JsonIgnore
     private List<User> users;

@@ -52,11 +52,6 @@ create table user (
   primary key (id)
 ) engine=InnoDB;
 
-create table user_book (
-  book_id integer not null,
-  user_id integer not null
-) engine=InnoDB;
-
 alter table book_author
   add constraint FKbjqhp85wjv8vpr0beygh6jsgo
   foreign key (author_id)
@@ -77,12 +72,12 @@ alter table book_category
   foreign key (book_id)
   references book (id);
 
-alter table user_book
+alter table library
   add constraint FKbc0bwdnndnxhct38sinbem0n0
   foreign key (user_id)
   references user (id);
 
-alter table user_book
+alter table library
   add constraint FK85pwltn867pjxog1gk5smtqcw
   foreign key (book_id)
   references book (id);

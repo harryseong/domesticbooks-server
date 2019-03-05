@@ -9,9 +9,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.harryseong</groupId>
-    <artifactId>books</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>books</name>
+    <artifactId>domestic_books</artifactId>
+    <version>0.0.2-SNAPSHOT</version>
+    <name>domestic_books</name>
     <description>Spring Boot Project for keeping track of books</description>
 
     <properties>
@@ -54,11 +54,11 @@
         </dependency>
 
         <!--Flyway-->
-        <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-core</artifactId>
-            <version>5.2.4</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.flywaydb</groupId>-->
+            <!--<artifactId>flyway-core</artifactId>-->
+            <!--<version>5.2.4</version>-->
+        <!--</dependency>-->
 
         <dependency>
             <groupId>commons-validator</groupId>
@@ -81,10 +81,68 @@
 
     <build>
         <plugins>
+            <!--<plugin>-->
+                <!--<groupId>org.flywaydb</groupId>-->
+                <!--<artifactId>flyway-maven-plugin</artifactId>-->
+                <!--<version>5.2.4</version>-->
+            <!--</plugin>-->
+
             <plugin>
-                <groupId>org.flywaydb</groupId>
-                <artifactId>flyway-maven-plugin</artifactId>
-                <version>5.2.4</version>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+            <!--dockerfile-maven will build the app JAR, then use the Dockerfile to build a Docker image when
+            "mvn clean package -DskipTests" command is run.-->
+            <!--https://github.com/spotify/dockerfile-maven-->
+            <plugin>
+                <groupId>com.spotify</groupId>
+                <artifactId>dockerfile-maven-plugin</artifactId>
+                <version>1.4.9</version>
+                <executions>
+                    <execution>
+                        <id>default</id>
+                        <!--Set goals here. Currently set to build, then push.-->
+                        <goals>
+                            <goal>build</goal>
+                            <goal>push</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <repository>domestic-books</repository>
+                    <tag>${project.version}</tag>
+                    <buildArgs>
+                        <!--"ADD" Docker filepath confusion bug. Prepend with "target/"-->
+                        <!--https://github.com/spotify/dockerfile-maven/issues/209&ndash;&gt;-->
+                        <JAR_FILE>target/${project.build.finalName}.jar</JAR_FILE>
+                    </buildArgs>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>com.microsoft.azure</groupId>
+                <artifactId>azure-webapp-maven-plugin</artifactId>
+                <version>1.4.0</version>
+                <configuration>
+                    <deploymentType>jar</deploymentType>
+
+                    <!-- configure app to run on port 80, required by App Service -->
+                    <appSettings>
+                        <property>
+                            <name>JAVA_OPTS</name>
+                            <value>-Dserver.port=80</value>
+                        </property>
+                    </appSettings>
+
+                    <!-- Web App information -->
+                    <resourceGroup>domesticbooks-rg</resourceGroup>
+                    <appName>domesticbooks</appName>
+                    <region>North Central US</region>
+
+                    <!-- Java Runtime Stack for Web App on Linux-->
+                    <linuxRuntime>jre8</linuxRuntime>
+                </configuration>
             </plugin>
         </plugins>
     </build>
