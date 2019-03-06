@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.harryseong</groupId>
     <artifactId>domestic_books</artifactId>
-    <version>0.0.2-SNAPSHOT</version>
+    <version>0.0.3-SNAPSHOT</version>
     <name>domestic_books</name>
     <description>Spring Boot Project for keeping track of books</description>
 
