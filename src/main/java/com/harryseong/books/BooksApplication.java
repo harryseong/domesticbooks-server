@@ -27,7 +27,7 @@ public class BooksApplication {
                 .apiInfo(apiInfo())
                 .select()
                 .apis(RequestHandlerSelectors.any())
-                .paths(PathSelectors.ant("/api/**"))
+                .paths(PathSelectors.ant("/api/docs/**"))
                 .build();
     }
 
