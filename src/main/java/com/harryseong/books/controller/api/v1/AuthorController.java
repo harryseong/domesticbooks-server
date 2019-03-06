@@ -2,8 +2,8 @@ package com.harryseong.books.controller.api.v1;
 
 import com.harryseong.books.BooksApplication;
 import com.harryseong.books.dto.AuthorDTO;
-import com.harryseong.books.model.Author;
-import com.harryseong.books.model.Book;
+import com.harryseong.books.domain.Author;
+import com.harryseong.books.domain.Book;
 import com.harryseong.books.repository.AuthorRepository;
 import com.harryseong.books.repository.BookRepository;
 import com.harryseong.books.service.AuthorService;

@@ -1,4 +1,4 @@
-package com.harryseong.books.model;
+package com.harryseong.books.domain;
 
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;

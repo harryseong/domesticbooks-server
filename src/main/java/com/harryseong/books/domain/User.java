@@ -1,4 +1,4 @@
-package com.harryseong.books.model;
+package com.harryseong.books.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.LazyCollection;
@@ -25,6 +25,7 @@ public class User {
     @NotBlank @NotNull @Email
     private String email;
 
+    @JsonIgnore
     private String password;
 
     @ManyToMany(cascade = CascadeType.PERSIST)
@@ -32,6 +33,10 @@ public class User {
     @LazyCollection(LazyCollectionOption.TRUE)
     @JsonIgnore
     private List<Book> books;
+
+    @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.EAGER)
+    @JoinTable(name="user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private List<Role> roles;
 
     public User() {
     }
@@ -106,5 +111,13 @@ public class User {
         if (this.books.contains(book)) {
             this.books.remove(book);
         }
+    }
+
+    public List<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(List<Role> roles) {
+        this.roles = roles;
     }
 }

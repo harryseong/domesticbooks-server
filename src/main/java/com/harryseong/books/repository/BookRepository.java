@@ -1,8 +1,8 @@
 package com.harryseong.books.repository;
 
-import com.harryseong.books.model.Author;
-import com.harryseong.books.model.Book;
-import com.harryseong.books.model.User;
+import com.harryseong.books.domain.Author;
+import com.harryseong.books.domain.Book;
+import com.harryseong.books.domain.User;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 

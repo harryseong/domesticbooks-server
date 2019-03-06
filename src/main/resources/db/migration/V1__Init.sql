@@ -52,6 +52,18 @@ create table user (
   primary key (id)
 ) engine=InnoDB;
 
+create table role (
+  id integer not null auto_increment,
+  name varchar(255) not null,
+  description varchar(255) not null,
+  primary key (id)
+) engine=InnoDB;
+
+create table user_role (
+  user_id integer not null,
+  role_id integer not null
+) engine=InnoDB;
+
 alter table book_author
   add constraint FKbjqhp85wjv8vpr0beygh6jsgo
   foreign key (author_id)
@@ -81,3 +93,13 @@ alter table library
   add constraint FK85pwltn867pjxog1gk5smtqcw
   foreign key (book_id)
   references book (id);
+
+alter table user_role
+  add constraint FKa68196081fvovjhkek5m97n3y
+  foreign key (role_id)
+  references role (id);
+
+alter table user_role
+  add constraint FK859n2jvi8ivhui0rl0esws6o
+  foreign key (user_id)
+  references role (id);

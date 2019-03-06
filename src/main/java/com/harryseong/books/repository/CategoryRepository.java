@@ -1,6 +1,6 @@
 package com.harryseong.books.repository;
 
-import com.harryseong.books.model.Category;
+import com.harryseong.books.domain.Category;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 

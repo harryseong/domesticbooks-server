@@ -1,7 +1,7 @@
 package com.harryseong.books.service;
 
 import com.harryseong.books.dto.AuthorDTO;
-import com.harryseong.books.model.Author;
+import com.harryseong.books.domain.Author;
 import org.springframework.stereotype.Service;
 
 @Service

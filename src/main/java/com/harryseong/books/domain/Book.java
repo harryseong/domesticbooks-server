@@ -1,4 +1,4 @@
-package com.harryseong.books.model;
+package com.harryseong.books.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.harryseong.books.constraints.ISBN;
