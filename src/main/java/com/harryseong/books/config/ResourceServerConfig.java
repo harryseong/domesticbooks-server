@@ -31,6 +31,8 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                 .and()
                 .authorizeRequests()
                 .antMatchers("/bookdb/api/docs/**").permitAll()
-                .antMatchers("/api/v1/**").authenticated();
+                .antMatchers("/api/v1/book/**").authenticated()
+                .antMatchers("/api/v1/author/**").authenticated()
+                .antMatchers("/api/v1/user/**").permitAll();
     }
 }

@@ -29,7 +29,6 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Value("${security.security-realm}")
     private String securityRealm;
 
-
     @Bean
     @Override
     protected AuthenticationManager authenticationManager() throws Exception {
