@@ -9,9 +9,9 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.harryseong</groupId>
-    <artifactId>domestic_books</artifactId>
+    <artifactId>mybookrepo</artifactId>
     <version>0.0.3-SNAPSHOT</version>
-    <name>domestic_books</name>
+    <name>mybookrepo</name>
     <description>Spring Boot Project for keeping track of books</description>
 
     <properties>
@@ -128,7 +128,7 @@
                     </execution>
                 </executions>
                 <configuration>
-                    <repository>domesticbooks-server</repository>
+                    <repository>mybookrepo-server</repository>
                     <tag>${project.version}</tag>
                     <buildArgs>
                         <!--"ADD" Docker filepath confusion bug. Prepend with "target/"-->
