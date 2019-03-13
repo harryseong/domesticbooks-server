@@ -102,4 +102,4 @@ alter table user_role
 alter table user_role
   add constraint FK859n2jvi8ivhui0rl0esws6o
   foreign key (user_id)
-  references role (id);
+  references user (id);

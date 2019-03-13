@@ -43,13 +43,22 @@ public class UserController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @GetMapping("/{id}")
-    private Optional<User> getUser(@PathVariable Integer id) {
+    @GetMapping("/id/{id}")
+    private Optional<User> getUserById(@PathVariable Integer id) {
         return userRepository.findById(id);
     }
 
+    @GetMapping("/email/{email}")
+    private User getUserByName(@PathVariable String email) { return userRepository.findByEmail(email); }
+
     @PostMapping("")
     private ResponseEntity<String> registerNewUser(@RequestBody @Valid UserDTO userDTO) {
+
+        // If user already exists,
+        if (userRepository.findByEmail(userDTO.getEmail()) != null) {
+            LOGGER.warn(String.format("User, %s, already exists in the system.", userDTO.getEmail()));
+            return new ResponseEntity<>(String.format("User, %s, already exists in the system.", userDTO.getEmail()), HttpStatus.CONFLICT);
+        }
 
         User user = new User();
         user.setFirstName(userDTO.getFirstName());
@@ -65,9 +74,14 @@ public class UserController {
         }
 
         user.setRoles(roles);
-        userRepository.save(user);
 
-        LOGGER.info(String.format("User, %s, has been registered.", user.getEmail()));
-        return new ResponseEntity<>(String.format("User, %s, has been registered.", user.getEmail()), HttpStatus.CREATED);
+        try {
+            userRepository.save(user);
+            LOGGER.info(String.format("User, %s, has been registered.", user.getEmail()));
+            return new ResponseEntity<>(String.format("User, %s, has been registered.", user.getEmail()), HttpStatus.CREATED);
+        } catch (Error e) {
+            LOGGER.error(String.format("User, %s, could not be registered due to a server error.", user.getEmail()));
+            return new ResponseEntity<>(String.format("User, %s, could not be registered due to a server error.", user.getEmail()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
