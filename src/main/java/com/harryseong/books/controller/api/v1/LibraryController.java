@@ -17,6 +17,7 @@ import org.springframework.transaction.UnexpectedRollbackException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 
 @RestController
@@ -37,8 +38,15 @@ public class LibraryController {
     @Autowired
     UserRepository userRepository;
 
+    @GetMapping("/books")
+    public List<Book> getAllBooks(@RequestParam(name = "userId") Integer userId) {
+
+        User user = userRepository.findById(userId).get();
+        return bookRepository.findAllByUsersContaining(user);
+    }
+
     @PostMapping("/book")
-    public ResponseEntity<String> addBook(@RequestBody @Valid BookDTO bookDTO) {
+    public ResponseEntity<String> addBook(@RequestBody @Valid BookDTO bookDTO, @RequestParam(name = "userId") Integer userId) {
         Book book = null;
         if (bookDTO.getIsbn10() != null) {
             book = bookRepository.findByIsbn10(bookDTO.getIsbn10());
@@ -62,8 +70,7 @@ public class LibraryController {
             LOGGER.info("Book already exists in db: {}", bookDTO.getTitle());
         }
 
-        // TODO: Replace hardcoded user with actual user.
-        User user = userRepository.findById(1).get();
+        User user = userRepository.findById(userId).get();
         if (user.getBooks().contains(book)) {
             LOGGER.info("Book, {}, already in {}'s library.", book.getTitle(), user.getFullName());
             return new ResponseEntity<>(String.format("Book, %s, already in %s's library.", book.getTitle(), user.getFullName()), HttpStatus.ACCEPTED);
