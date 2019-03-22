@@ -6,6 +6,7 @@ import org.hibernate.annotations.LazyCollectionOption;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -22,7 +23,7 @@ public class Category {
     @ManyToMany(cascade = CascadeType.PERSIST)
     @JoinTable(name = "book_category", joinColumns = @JoinColumn(name = "category_id"), inverseJoinColumns = @JoinColumn(name = "book_id"))
     @LazyCollection(LazyCollectionOption.TRUE)
-    private List<Book> books;
+    private List<Book> books = new ArrayList<>();
 
     public Category() {
     }

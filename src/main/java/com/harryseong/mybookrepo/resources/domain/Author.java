@@ -7,6 +7,7 @@ import org.hibernate.annotations.LazyCollectionOption;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -25,7 +26,7 @@ public class Author {
     @JoinTable(name = "book_author", joinColumns = @JoinColumn(name = "author_id"), inverseJoinColumns = @JoinColumn(name = "book_id"))
     @LazyCollection(LazyCollectionOption.TRUE)
     @JsonIgnore
-    private List<Book> books;
+    private List<Book> books = new ArrayList<>();
 
     public Author() {
     }

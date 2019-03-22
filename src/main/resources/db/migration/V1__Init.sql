@@ -27,27 +27,12 @@ create table category (
   primary key (id)
 ) engine=InnoDB;
 
-create table library (
-  book_id integer not null,
-  user_id integer not null
-) engine=InnoDB;
-
-create table book_author (
-  book_id integer not null,
-  author_id integer not null
-) engine=InnoDB;
-
-create table book_category (
-  book_id integer not null,
-  category_id integer not null
-) engine=InnoDB;
-
 create table user (
   id integer not null auto_increment,
   email varchar(255) not null,
   first_name varchar(255) not null,
   last_name varchar(255) not null,
-  middle_name varchar(255),
+  username varchar(255) not null,
   password varchar(255),
   primary key (id)
 ) engine=InnoDB;
@@ -57,6 +42,24 @@ create table role (
   name varchar(255) not null,
   description varchar(255) not null,
   primary key (id)
+) engine=InnoDB;
+
+create table user_book (
+  have_read boolean,
+  have_read_date date,
+  book_id integer not null,
+  user_id integer not null,
+  primary key (book_id, user_id)
+) engine=InnoDB;
+
+create table book_author (
+ book_id integer not null,
+ author_id integer not null
+) engine=InnoDB;
+
+create table book_category (
+ book_id integer not null,
+ category_id integer not null
 ) engine=InnoDB;
 
 create table user_role (
@@ -84,12 +87,12 @@ alter table book_category
   foreign key (book_id)
   references book (id);
 
-alter table library
+alter table user_book
   add constraint FKbc0bwdnndnxhct38sinbem0n0
   foreign key (user_id)
   references user (id);
 
-alter table library
+alter table user_book
   add constraint FK85pwltn867pjxog1gk5smtqcw
   foreign key (book_id)
   references book (id);

@@ -1,10 +1,8 @@
 package com.harryseong.mybookrepo.resources.controller.api.v1;
 
 import com.harryseong.mybookrepo.resources.ResourcesApplication;
-import com.harryseong.mybookrepo.resources.domain.Role;
 
 import com.harryseong.mybookrepo.resources.domain.User;
-import com.harryseong.mybookrepo.resources.dto.UserDTO;
 import com.harryseong.mybookrepo.resources.repository.BookRepository;
 import com.harryseong.mybookrepo.resources.repository.RoleRepository;
 import com.harryseong.mybookrepo.resources.repository.UserRepository;
@@ -12,14 +10,8 @@ import com.harryseong.mybookrepo.resources.service.BookService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 @RestController
@@ -40,8 +32,6 @@ public class UserController {
     @Autowired
     UserRepository userRepository;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     @GetMapping("/id/{id}")
     private Optional<User> getUserById(@PathVariable Integer id) {
@@ -50,4 +40,7 @@ public class UserController {
 
     @GetMapping("/email/{email}")
     private User getUserByEmail(@PathVariable String email) { return userRepository.findByEmail(email); }
+
+    @GetMapping("/username/{username}")
+    private User getUserByUsername(@PathVariable String username) { return userRepository.findByUsername(username); }
 }

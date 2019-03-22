@@ -1,6 +1,5 @@
 package com.harryseong.mybookrepo.resources.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.harryseong.mybookrepo.resources.constraints.ISBN;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
@@ -10,7 +9,9 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name="book")
@@ -28,18 +29,16 @@ public class Book {
     @ManyToMany(cascade = CascadeType.PERSIST)
     @JoinTable(name = "book_author", joinColumns = @JoinColumn(name = "book_id"), inverseJoinColumns = @JoinColumn(name = "author_id"))
     @LazyCollection(LazyCollectionOption.TRUE)
-    private List<Author> authors;
+    private List<Author> authors = new ArrayList<>();
 
     @ManyToMany(cascade = CascadeType.PERSIST)
     @JoinTable(name = "book_category", joinColumns = @JoinColumn(name = "book_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))
     @LazyCollection(LazyCollectionOption.TRUE)
     private List<Category> categories;
 
-    @ManyToMany(cascade = CascadeType.PERSIST)
-    @JoinTable(name = "library", joinColumns = @JoinColumn(name = "book_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
     @LazyCollection(LazyCollectionOption.TRUE)
-    @JsonIgnore
-    private List<User> users;
+    private List<UserBook> users = new ArrayList<>();
 
     @Size(max=5000)
     private String description;
@@ -103,11 +102,11 @@ public class Book {
         this.authors = authors;
     }
 
-    public List<User> getUsers() {
+    public List<UserBook> getUsers() {
         return users;
     }
 
-    public void setUsers(List<User> users) {
+    public void setUsers(List<UserBook> users) {
         this.users = users;
     }
 
@@ -176,10 +175,18 @@ public class Book {
     }
 
     @Override
-    public String toString() {
-        return "Book{" +
-            "id=" + id +
-            ", title='" + title + '\'' +
-            '}';
+    public boolean equals(Object o) {
+        if (this == o) return true;
+
+        if (o == null || getClass() != o.getClass())
+            return false;
+
+        Book book = (Book) o;
+        return Objects.equals(id, book.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

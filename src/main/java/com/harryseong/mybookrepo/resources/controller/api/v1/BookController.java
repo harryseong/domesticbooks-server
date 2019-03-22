@@ -41,14 +41,6 @@ public class BookController {
     @Autowired
     UserRepository userRepository;
 
-    @GetMapping("")
-    public List<Book> getAllBooks() {
-
-        // TODO: Replace hardcoded user with actual user.
-        User user = userRepository.findById(1).get();
-        return bookRepository.findAllByUsersContaining(user);
-    }
-
     @GetMapping("/{id}")
     public Optional<Book> getBook(@PathVariable Integer id) {
         return bookRepository.findById(id);

@@ -25,18 +25,19 @@ public class AppUserDetailsService implements UserDetailsService {
     private UserRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String email) {
-        User user = userRepository.findByEmail(email);
+    public UserDetails loadUserByUsername(String username) {
+        User user = userRepository.findByUsername(username);
 
         if (user == null) {
-            throw new UsernameNotFoundException(String.format("The user %s does not exist.", email));
+            throw new UsernameNotFoundException(String.format("The user %s does not exist.", username));
         }
 
         LOGGER.info("User {} found.", user.getEmail());
 
+        // Extract roles of user here.
         List<GrantedAuthority> authorities = new ArrayList<>();
         user.getRoles().forEach(role -> authorities.add(new SimpleGrantedAuthority(role.getName())));
 
-        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPassword(), authorities);
+        return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), authorities);
     }
 }
