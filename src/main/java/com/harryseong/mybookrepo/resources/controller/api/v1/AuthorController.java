@@ -82,7 +82,7 @@ public class AuthorController {
             return new ResponseEntity<>(String.format("New author saved successfully: %s", newAuthor.getFullName()), HttpStatus.CREATED);
         } catch (UnexpectedRollbackException e) {
             LOGGER.error("Unable to save new author, {}, due to db error: {}", newAuthor.getFullName(), e.getMostSpecificCause());
-            return new ResponseEntity<>(String.format("Unable to new save author, %s", newAuthor.getFullName()), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(String.format("Unable to save new author, %s", newAuthor.getFullName()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

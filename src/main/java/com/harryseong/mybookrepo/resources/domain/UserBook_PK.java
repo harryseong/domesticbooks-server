@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.Objects;
 
 @Embeddable
-public class UserBookId implements Serializable {
+public class UserBook_PK implements Serializable {
 
     @Column(name = "user_id")
     private Integer userId;
@@ -14,10 +14,10 @@ public class UserBookId implements Serializable {
     @Column(name = "book_id")
     private Integer bookId;
 
-    public UserBookId() {
+    public UserBook_PK() {
     }
 
-    public UserBookId(Integer userId, Integer bookId) {
+    public UserBook_PK(Integer userId, Integer bookId) {
         this.userId = userId;
         this.bookId = bookId;
     }
@@ -41,11 +41,9 @@ public class UserBookId implements Serializable {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-
         if (o == null || getClass() != o.getClass())
             return false;
-
-        UserBookId that = (UserBookId) o;
+        UserBook_PK that = (UserBook_PK) o;
         return Objects.equals(userId, that.userId) &&
             Objects.equals(bookId, that.bookId);
     }

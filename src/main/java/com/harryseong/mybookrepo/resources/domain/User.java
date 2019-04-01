@@ -1,20 +1,21 @@
 package com.harryseong.mybookrepo.resources.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.hibernate.annotations.Fetch;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
+import io.swagger.annotations.ApiModelProperty;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+
+import static javax.persistence.TemporalType.TIMESTAMP;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name="user")
 public class User {
 
@@ -40,6 +41,21 @@ public class User {
     @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
     @JoinTable(name="user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private List<Role> roles = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<Plan> plans = new ArrayList<>();
+
+    @CreatedDate
+    @Temporal(TIMESTAMP)
+    @Column(nullable = false, updatable = false)
+    @ApiModelProperty(hidden=true)
+    private Date createdDate;
+
+    @LastModifiedDate
+    @Temporal(TIMESTAMP)
+    @Column(nullable = false)
+    @ApiModelProperty(hidden=true)
+    private Date modifiedDate;
 
     public User() {
     }
@@ -141,6 +157,29 @@ public class User {
         this.roles = roles;
     }
 
+    public List<Plan> getPlans() {
+        return plans;
+    }
+
+    public void setPlans(List<Plan> plans) {
+        this.plans = plans;
+    }
+
+    public Date getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(Date createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    public Date getModifiedDate() {
+        return modifiedDate;
+    }
+
+    public void setModifiedDate(Date modifiedDate) {
+        this.modifiedDate = modifiedDate;
+    }
 
     @Override
     public boolean equals(Object o) {

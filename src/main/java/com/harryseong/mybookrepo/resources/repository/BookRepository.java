@@ -2,6 +2,7 @@ package com.harryseong.mybookrepo.resources.repository;
 
 import com.harryseong.mybookrepo.resources.domain.Author;
 import com.harryseong.mybookrepo.resources.domain.Book;
+import com.harryseong.mybookrepo.resources.domain.Plan;
 import com.harryseong.mybookrepo.resources.domain.User;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
@@ -12,6 +13,7 @@ import java.util.List;
 public interface BookRepository extends CrudRepository<Book, Integer> {
     List<Book> findAllByAuthorsContaining(Author author);
     List<Book> findAllByUsersContaining(User user);
+    List<Book> findAllByPlansContaining(Plan plan);
     List<Book> findAll();
     Book findByIsbn10(String isbn10);
     Book findByIsbn13(String isbn13);

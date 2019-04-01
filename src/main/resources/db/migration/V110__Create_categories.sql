@@ -1,5 +1,5 @@
-INSERT INTO category (id, name)
-  VALUES (1, 'Biography & Autobiography');
+INSERT INTO category (id, name, created_date, modified_date)
+  VALUES (1, 'Biography & Autobiography', now(), now());
 
 INSERT INTO book_category (book_id, category_id)
   VALUES (1, 1);

@@ -3,6 +3,8 @@ create table author (
   first_name varchar(255) not null,
   last_name varchar(255),
   middle_name varchar(255),
+  created_date  DATETIME NOT NULL,
+  modified_date DATETIME NOT NULL,
   primary key (id)
 ) engine=InnoDB;
 
@@ -18,12 +20,34 @@ create table book (
   print_type varchar(255),
   published_date int,
   publisher varchar(255),
+  created_date  DATETIME NOT NULL,
+  modified_date DATETIME NOT NULL,
   primary key (id)
 ) engine=InnoDB;
 
 create table category (
   id integer not null auto_increment,
   name varchar(255) not null,
+  created_date  DATETIME NOT NULL,
+  modified_date DATETIME NOT NULL,
+  primary key (id)
+) engine=InnoDB;
+
+create table plan (
+  id integer not null auto_increment,
+  name varchar(255),
+  user_id integer not null,
+  created_date  DATETIME NOT NULL,
+  modified_date DATETIME NOT NULL,
+  primary key (id)
+) engine=InnoDB;
+
+create table role (
+  id integer not null auto_increment,
+  name varchar(255) not null,
+  description varchar(255) not null,
+  created_date  DATETIME NOT NULL,
+  modified_date DATETIME NOT NULL,
   primary key (id)
 ) engine=InnoDB;
 
@@ -33,15 +57,27 @@ create table user (
   first_name varchar(255) not null,
   last_name varchar(255) not null,
   username varchar(255) not null,
-  password varchar(255),
+  password varchar(255) not null,
+  created_date  DATETIME NOT NULL,
+  modified_date DATETIME NOT NULL,
   primary key (id)
 ) engine=InnoDB;
 
-create table role (
-  id integer not null auto_increment,
-  name varchar(255) not null,
-  description varchar(255) not null,
-  primary key (id)
+create table book_author (
+  book_id integer not null,
+  author_id integer not null
+) engine=InnoDB;
+
+create table book_category (
+  book_id integer not null,
+  category_id integer not null
+) engine=InnoDB;
+
+create table plan_book (
+  status integer,
+  book_id integer not null,
+  plan_id integer not null,
+  primary key (book_id, plan_id)
 ) engine=InnoDB;
 
 create table user_book (
@@ -50,16 +86,6 @@ create table user_book (
   book_id integer not null,
   user_id integer not null,
   primary key (book_id, user_id)
-) engine=InnoDB;
-
-create table book_author (
- book_id integer not null,
- author_id integer not null
-) engine=InnoDB;
-
-create table book_category (
- book_id integer not null,
- category_id integer not null
 ) engine=InnoDB;
 
 create table user_role (
@@ -86,6 +112,21 @@ alter table book_category
   add constraint FKnyegcbpvce2mnmg26h0i856fd
   foreign key (book_id)
   references book (id);
+
+alter table plan
+  add constraint FK271ok4ss5pcte25w6o3hvv60x
+  foreign key (user_id)
+  references user (id);
+
+alter table plan_book
+  add constraint FKog7alawo3uv9gpgfgj3wyminy
+  foreign key (book_id)
+  references book (id);
+
+alter table plan_book
+  add constraint FKfe0i41tqh0f6le20ajw1d1m9v
+  foreign key (plan_id)
+  references plan (id);
 
 alter table user_book
   add constraint FKbc0bwdnndnxhct38sinbem0n0

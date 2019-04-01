@@ -9,7 +9,7 @@ import java.util.Objects;
 public class UserBook {
 
     @EmbeddedId
-    private UserBookId id;
+    private UserBook_PK id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @MapsId("userId")
@@ -31,11 +31,11 @@ public class UserBook {
         this.book = book;
     }
 
-    public UserBookId getId() {
+    public UserBook_PK getId() {
         return id;
     }
 
-    public void setId(UserBookId id) {
+    public void setId(UserBook_PK id) {
         this.id = id;
     }
 

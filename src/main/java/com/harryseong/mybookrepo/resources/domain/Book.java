@@ -1,19 +1,27 @@
 package com.harryseong.mybookrepo.resources.domain;
 
 import com.harryseong.mybookrepo.resources.constraints.ISBN;
+import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
 import org.hibernate.validator.constraints.URL;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
+import static javax.persistence.TemporalType.TIMESTAMP;
+
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name="book")
 public class Book {
 
@@ -40,6 +48,10 @@ public class Book {
     @LazyCollection(LazyCollectionOption.TRUE)
     private List<UserBook> users = new ArrayList<>();
 
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
+    @LazyCollection(LazyCollectionOption.TRUE)
+    private List<PlanBook> plans = new ArrayList<>();
+
     @Size(max=5000)
     private String description;
 
@@ -58,6 +70,18 @@ public class Book {
     private String isbn10;
 
     private String otherIdType;
+
+    @CreatedDate
+    @Temporal(TIMESTAMP)
+    @Column(nullable = false, updatable = false)
+    @ApiModelProperty(hidden=true)
+    private Date createdDate;
+
+    @LastModifiedDate
+    @Temporal(TIMESTAMP)
+    @Column(nullable = false)
+    @ApiModelProperty(hidden=true)
+    private Date modifiedDate;
 
     public Book() {
     }
@@ -108,6 +132,14 @@ public class Book {
 
     public void setUsers(List<UserBook> users) {
         this.users = users;
+    }
+
+    public List<PlanBook> getPlans() {
+        return plans;
+    }
+
+    public void setPlans(List<PlanBook> plans) {
+        this.plans = plans;
     }
 
     public String getDescription() {
@@ -172,6 +204,22 @@ public class Book {
 
     public void setCategories(List<Category> categories) {
         this.categories = categories;
+    }
+
+    public Date getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(Date createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    public Date getModifiedDate() {
+        return modifiedDate;
+    }
+
+    public void setModifiedDate(Date modifiedDate) {
+        this.modifiedDate = modifiedDate;
     }
 
     @Override

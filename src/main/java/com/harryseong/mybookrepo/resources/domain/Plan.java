@@ -1,15 +1,11 @@
 package com.harryseong.mybookrepo.resources.domain;
 
 import io.swagger.annotations.ApiModelProperty;
-import org.hibernate.annotations.LazyCollection;
-import org.hibernate.annotations.LazyCollectionOption;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -18,20 +14,21 @@ import static javax.persistence.TemporalType.TIMESTAMP;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
-@Table(name="category")
-public class Category {
+@Table(name = "plan")
+public class Plan {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @NotNull @NotBlank
-    private String name;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("userId")
+    private User user;
 
-    @ManyToMany(cascade = CascadeType.PERSIST)
-    @JoinTable(name = "book_category", joinColumns = @JoinColumn(name = "category_id"), inverseJoinColumns = @JoinColumn(name = "book_id"))
-    @LazyCollection(LazyCollectionOption.TRUE)
-    private List<Book> books = new ArrayList<>();
+    @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private List<PlanBook> books = new ArrayList<>();
+
+    private String name;
+    private String description;
 
     @CreatedDate
     @Temporal(TIMESTAMP)
@@ -45,11 +42,7 @@ public class Category {
     @ApiModelProperty(hidden=true)
     private Date modifiedDate;
 
-    public Category() {
-    }
-
-    public Category(@NotNull @NotBlank String name) {
-        this.name = name;
+    public Plan() {
     }
 
     public Integer getId() {
@@ -60,6 +53,22 @@ public class Category {
         this.id = id;
     }
 
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public List<PlanBook> getBooks() {
+        return books;
+    }
+
+    public void setBooks(List<PlanBook> books) {
+        this.books = books;
+    }
+
     public String getName() {
         return name;
     }
@@ -68,12 +77,12 @@ public class Category {
         this.name = name;
     }
 
-    public List<Book> getBooks() {
-        return books;
+    public String getDescription() {
+        return description;
     }
 
-    public void setBooks(List<Book> books) {
-        this.books = books;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public Date getCreatedDate() {
