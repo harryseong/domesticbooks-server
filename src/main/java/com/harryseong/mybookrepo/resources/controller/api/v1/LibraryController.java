@@ -40,37 +40,19 @@ public class LibraryController {
 
     @GetMapping("/books")
     public List<Book> getAllBooks(@RequestParam(name = "userId") Integer userId) {
-
         User user = userRepository.findById(userId).get();
         return bookRepository.findAllByUsersContaining(user);
     }
 
     @PostMapping("/book")
     public ResponseEntity<String> addBook(@RequestBody @Valid BookDTO bookDTO, @RequestParam(name = "userId") Integer userId) {
-        Book book = null;
-        if (bookDTO.getIsbn10() != null) {
-            book = bookRepository.findByIsbn10(bookDTO.getIsbn10());
-        }
-        if (book == null && bookDTO.getIsbn13() != null) {
-            book = bookRepository.findByIsbn13(bookDTO.getIsbn13());
-        }
-        if (book == null && bookDTO.getOtherIdType() != null) {
-            book = bookRepository.findByOtherIdType(bookDTO.getOtherIdType());
-        }
 
-        if (book == null) {
-            book = bookService.updateBook(new Book(), bookDTO);
-            try {
-                bookRepository.save(book);
-                LOGGER.info("New book saved successfully: {}", book.getTitle());
-            } catch (UnexpectedRollbackException e) {
-                LOGGER.error("Unable to save new book, {}, due to db error: {}", book.getTitle(), e.getMostSpecificCause());
-            }
-        } else {
-            LOGGER.info("Book already exists in db: {}", bookDTO.getTitle());
-        }
+        // Check if book exists in DB by any of the book identification info.
+        Book book = bookService.findBookByIdentifiers(bookDTO);
 
         User user = userRepository.findById(userId).get();
+
+        // Check if book already exists in user's library. If not, add book to user library.
         if (user.getBooks().contains(book)) {
             LOGGER.info("Book, {}, already in {}'s library.", book.getTitle(), user.getFullName());
             return new ResponseEntity<>(String.format("Book, %s, already in %s's library.", book.getTitle(), user.getFullName()), HttpStatus.ACCEPTED);

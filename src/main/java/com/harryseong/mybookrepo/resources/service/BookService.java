@@ -8,6 +8,7 @@ import com.harryseong.mybookrepo.resources.domain.Author;
 import com.harryseong.mybookrepo.resources.domain.Book;
 import com.harryseong.mybookrepo.resources.domain.Category;
 import com.harryseong.mybookrepo.resources.repository.AuthorRepository;
+import com.harryseong.mybookrepo.resources.repository.BookRepository;
 import com.harryseong.mybookrepo.resources.repository.CategoryRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,12 @@ public class BookService {
 
     @Autowired
     AuthorRepository authorRepository;
+
+    @Autowired
+    BookRepository bookRepository;
+
+    @Autowired
+    BookService bookService;
 
     @Autowired
     CategoryRepository categoryRepository;
@@ -105,6 +112,35 @@ public class BookService {
         } else {
             LOGGER.info("Book does not have listed categories: {}", bookDTO.getIsbn13());
         }
+        return book;
+    }
+
+    public Book findBookByIdentifiers(BookDTO bookDTO) {
+        Book book = null;
+
+        if (bookDTO.getIsbn10() != null) {
+            book = bookRepository.findByIsbn10(bookDTO.getIsbn10());
+        }
+        if (book == null && bookDTO.getIsbn13() != null) {
+            book = bookRepository.findByIsbn13(bookDTO.getIsbn13());
+        }
+        if (book == null && bookDTO.getOtherIdType() != null) {
+            book = bookRepository.findByOtherIdType(bookDTO.getOtherIdType());
+        }
+
+        // If book does not yet exist in DB, save as new book.
+        if (book == null) {
+            book = bookService.updateBook(new Book(), bookDTO);
+            try {
+                bookRepository.save(book);
+                LOGGER.info("New book saved successfully: {}", book.getTitle());
+            } catch (UnexpectedRollbackException e) {
+                LOGGER.error("Unable to save new book, {}, due to db error: {}", book.getTitle(), e.getMostSpecificCause());
+            }
+        } else {
+            LOGGER.info("Book already exists in db: {}", bookDTO.getTitle());
+        }
+
         return book;
     }
 }
