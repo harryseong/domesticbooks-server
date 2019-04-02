@@ -29,6 +29,7 @@ public class UserBook {
     public UserBook(User user, Book book) {
         this.user = user;
         this.book = book;
+        this.id = new UserBook_PK(user.getId(), book.getId());
     }
 
     public UserBook_PK getId() {

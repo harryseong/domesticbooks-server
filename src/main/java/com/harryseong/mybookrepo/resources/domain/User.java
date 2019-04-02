@@ -116,6 +116,20 @@ public class User {
         return books;
     }
 
+    public Boolean hasBook(Book book) {
+        // Iterate through each UserBook "book".
+        for (
+                Iterator<UserBook> iterator = books.iterator();
+                iterator.hasNext();
+        ) {
+            UserBook userBook = iterator.next();
+            if (userBook.getBook().equals(book)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void setBooks(List<UserBook> books) {
         this.books = books;
     }
@@ -123,7 +137,6 @@ public class User {
     public void addBook(Book book) {
         UserBook userBook = new UserBook(this, book);
         books.add(userBook);
-        this.getBooks().add(userBook);
     }
 
     public void removeBook(Book book) {

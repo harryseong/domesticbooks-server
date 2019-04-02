@@ -24,6 +24,7 @@ public class PlanBook {
     public PlanBook(Book book, Plan plan) {
         this.book = book;
         this.plan = plan;
+        this.id = new PlanBook_PK(plan.getId(), book.getId());
     }
 
     public void setBook(Book book) {

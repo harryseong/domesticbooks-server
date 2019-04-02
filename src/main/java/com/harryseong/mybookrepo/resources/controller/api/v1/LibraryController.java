@@ -53,7 +53,7 @@ public class LibraryController {
         User user = userRepository.findById(userId).get();
 
         // Check if book already exists in user's library. If not, add book to user library.
-        if (user.getBooks().contains(book)) {
+        if (user.hasBook(book)) {
             LOGGER.info("Book, {}, already in {}'s library.", book.getTitle(), user.getFullName());
             return new ResponseEntity<>(String.format("Book, %s, already in %s's library.", book.getTitle(), user.getFullName()), HttpStatus.ACCEPTED);
         } else {

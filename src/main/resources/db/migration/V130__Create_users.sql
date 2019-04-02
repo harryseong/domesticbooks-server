@@ -1,5 +1,5 @@
 INSERT INTO user (id, email, first_name, last_name, username, password, created_date, modified_date)
-  VALUES (1, 'harryseong@gmail.com', 'Harry', 'Seong', 'harryseong', 'password', now(), now());
+  VALUES (1, 'l-james@test.com', 'Lebron', 'James', 'lebronjames', 'password', now(), now());
 
 INSERT INTO user_book (user_id, book_id, have_read, have_read_date)
   VALUES (1, 1, true, '2017-01-01');
