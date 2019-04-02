@@ -36,6 +36,7 @@ create table category (
 create table plan (
   id integer not null auto_increment,
   name varchar(255),
+  description varchar(255),
   user_id integer not null,
   created_date  DATETIME NOT NULL,
   modified_date DATETIME NOT NULL,
