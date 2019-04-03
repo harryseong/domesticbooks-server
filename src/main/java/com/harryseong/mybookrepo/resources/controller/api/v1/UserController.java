@@ -10,9 +10,9 @@ import com.harryseong.mybookrepo.resources.service.BookService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Optional;
 
 @RestController
 @CrossOrigin("*")
@@ -32,15 +32,9 @@ public class UserController {
     @Autowired
     UserRepository userRepository;
 
-
-    @GetMapping("/id/{id}")
-    private Optional<User> getUserById(@PathVariable Integer id) {
-        return userRepository.findById(id);
+    @GetMapping("")
+    private User getUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return userRepository.findByUsername(auth.getName());
     }
-
-    @GetMapping("/email/{email}")
-    private User getUserByEmail(@PathVariable String email) { return userRepository.findByEmail(email); }
-
-    @GetMapping("/username/{username}")
-    private User getUserByUsername(@PathVariable String username) { return userRepository.findByUsername(username); }
 }

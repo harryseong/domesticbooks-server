@@ -1,5 +1,6 @@
 package com.harryseong.mybookrepo.resources.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -25,12 +26,14 @@ public class Role {
     @Temporal(TIMESTAMP)
     @Column(nullable = false, updatable = false)
     @ApiModelProperty(hidden=true)
+    @JsonIgnore
     private Date createdDate;
 
     @LastModifiedDate
     @Temporal(TIMESTAMP)
     @Column(nullable = false)
     @ApiModelProperty(hidden=true)
+    @JsonIgnore
     private Date modifiedDate;
 
     public Role() {

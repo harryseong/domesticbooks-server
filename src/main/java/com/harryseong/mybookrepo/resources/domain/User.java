@@ -35,7 +35,8 @@ public class User {
     @JsonIgnore
     private String password;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<UserBook> books = new ArrayList<>();
 
     @ManyToMany(cascade = CascadeType.PERSIST, fetch = FetchType.LAZY)
@@ -43,6 +44,7 @@ public class User {
     private List<Role> roles = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Plan> plans = new ArrayList<>();
 
     @CreatedDate
@@ -55,6 +57,7 @@ public class User {
     @Temporal(TIMESTAMP)
     @Column(nullable = false)
     @ApiModelProperty(hidden=true)
+    @JsonIgnore
     private Date modifiedDate;
 
     public User() {

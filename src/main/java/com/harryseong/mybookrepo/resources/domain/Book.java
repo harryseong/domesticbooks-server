@@ -1,5 +1,6 @@
 package com.harryseong.mybookrepo.resources.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.harryseong.mybookrepo.resources.constraints.ISBN;
 import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.annotations.LazyCollection;
@@ -36,20 +37,22 @@ public class Book {
 
     @ManyToMany(cascade = CascadeType.PERSIST)
     @JoinTable(name = "book_author", joinColumns = @JoinColumn(name = "book_id"), inverseJoinColumns = @JoinColumn(name = "author_id"))
-    @LazyCollection(LazyCollectionOption.TRUE)
+    @LazyCollection(LazyCollectionOption.FALSE)
     private List<Author> authors = new ArrayList<>();
 
     @ManyToMany(cascade = CascadeType.PERSIST)
     @JoinTable(name = "book_category", joinColumns = @JoinColumn(name = "book_id"), inverseJoinColumns = @JoinColumn(name = "category_id"))
-    @LazyCollection(LazyCollectionOption.TRUE)
+    @LazyCollection(LazyCollectionOption.FALSE)
     private List<Category> categories;
 
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
     @LazyCollection(LazyCollectionOption.TRUE)
+    @JsonIgnore
     private List<UserBook> users = new ArrayList<>();
 
     @OneToMany(mappedBy = "book", cascade = CascadeType.ALL, orphanRemoval = true)
     @LazyCollection(LazyCollectionOption.TRUE)
+    @JsonIgnore
     private List<PlanBook> plans = new ArrayList<>();
 
     @Size(max=5000)
@@ -75,12 +78,14 @@ public class Book {
     @Temporal(TIMESTAMP)
     @Column(nullable = false, updatable = false)
     @ApiModelProperty(hidden=true)
+    @JsonIgnore
     private Date createdDate;
 
     @LastModifiedDate
     @Temporal(TIMESTAMP)
     @Column(nullable = false)
     @ApiModelProperty(hidden=true)
+    @JsonIgnore
     private Date modifiedDate;
 
     public Book() {
@@ -236,5 +241,12 @@ public class Book {
     @Override
     public int hashCode() {
         return Objects.hash(id);
+    }
+
+    @Override
+    public String toString() {
+        return "Book{" +
+                "title='" + title + '\'' +
+                '}';
     }
 }

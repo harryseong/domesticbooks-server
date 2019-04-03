@@ -4,7 +4,6 @@ import com.harryseong.mybookrepo.resources.ResourcesApplication;
 import com.harryseong.mybookrepo.resources.dto.BookDTO;
 import com.harryseong.mybookrepo.resources.domain.Author;
 import com.harryseong.mybookrepo.resources.domain.Book;
-import com.harryseong.mybookrepo.resources.domain.User;
 import com.harryseong.mybookrepo.resources.repository.AuthorRepository;
 import com.harryseong.mybookrepo.resources.repository.BookRepository;
 import com.harryseong.mybookrepo.resources.repository.UserRepository;

@@ -3,6 +3,7 @@ package com.harryseong.mybookrepo.resources.controller.api.v1;
 import com.harryseong.mybookrepo.resources.ResourcesApplication;
 import com.harryseong.mybookrepo.resources.domain.Book;
 import com.harryseong.mybookrepo.resources.domain.User;
+import com.harryseong.mybookrepo.resources.domain.UserBook;
 import com.harryseong.mybookrepo.resources.dto.BookDTO;
 import com.harryseong.mybookrepo.resources.repository.BookRepository;
 import com.harryseong.mybookrepo.resources.repository.RoleRepository;
@@ -13,12 +14,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.UnexpectedRollbackException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
-
 
 @RestController
 @CrossOrigin("*")
@@ -39,9 +42,16 @@ public class LibraryController {
     UserRepository userRepository;
 
     @GetMapping("/books")
-    public List<Book> getAllBooks(@RequestParam(name = "userId") Integer userId) {
-        User user = userRepository.findById(userId).get();
-        return bookRepository.findAllByUsersContaining(user);
+    public List<Book> getAllBooks() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User user = userRepository.findByUsername(auth.getName());
+        LOGGER.info("Fetching all books for {}.", auth.getName());
+
+        List<Book> books = new ArrayList<>();
+        List<UserBook> userBooks = user.getBooks();
+        userBooks.forEach(userBook -> books.add(userBook.getBook()));
+        LOGGER.info(books.toString());
+        return books;
     }
 
     @PostMapping("/book")

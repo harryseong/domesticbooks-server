@@ -11,11 +11,11 @@ public class UserBook {
     @EmbeddedId
     private UserBook_PK id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @MapsId("userId")
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @MapsId("bookId")
     private Book book;
 

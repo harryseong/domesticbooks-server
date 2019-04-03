@@ -40,12 +40,14 @@ public class Author {
     @Temporal(TIMESTAMP)
     @Column(nullable = false, updatable = false)
     @ApiModelProperty(hidden=true)
+    @JsonIgnore
     private Date createdDate;
 
     @LastModifiedDate
     @Temporal(TIMESTAMP)
     @Column(nullable = false)
     @ApiModelProperty(hidden=true)
+    @JsonIgnore
     private Date modifiedDate;
 
     public Author() {

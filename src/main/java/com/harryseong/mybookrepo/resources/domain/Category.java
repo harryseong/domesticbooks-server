@@ -1,5 +1,6 @@
 package com.harryseong.mybookrepo.resources.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.annotations.LazyCollection;
 import org.hibernate.annotations.LazyCollectionOption;
@@ -31,18 +32,21 @@ public class Category {
     @ManyToMany(cascade = CascadeType.PERSIST)
     @JoinTable(name = "book_category", joinColumns = @JoinColumn(name = "category_id"), inverseJoinColumns = @JoinColumn(name = "book_id"))
     @LazyCollection(LazyCollectionOption.TRUE)
+    @JsonIgnore
     private List<Book> books = new ArrayList<>();
 
     @CreatedDate
     @Temporal(TIMESTAMP)
     @Column(nullable = false, updatable = false)
     @ApiModelProperty(hidden=true)
+    @JsonIgnore
     private Date createdDate;
 
     @LastModifiedDate
     @Temporal(TIMESTAMP)
     @Column(nullable = false)
     @ApiModelProperty(hidden=true)
+    @JsonIgnore
     private Date modifiedDate;
 
     public Category() {
