@@ -19,6 +19,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.UnexpectedRollbackException;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,12 +56,14 @@ public class LibraryController {
     }
 
     @PostMapping("/book")
-    public ResponseEntity<String> addBook(@RequestBody @Valid BookDTO bookDTO, @RequestParam(name = "userId") Integer userId) {
+    public ResponseEntity<String> addBook(@RequestBody @Valid BookDTO bookDTO) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User user = userRepository.findByUsername(auth.getName());
 
         // Check if book exists in DB by any of the book identification info.
         Book book = bookService.findBookByIdentifiers(bookDTO);
 
-        User user = userRepository.findById(userId).get();
+        LOGGER.info("Add book, '{}', to {}'s library.", bookDTO.getTitle(), auth.getName());
 
         // Check if book already exists in user's library. If not, add book to user library.
         if (user.hasBook(book)) {
@@ -80,16 +83,24 @@ public class LibraryController {
         }
     }
 
-    @DeleteMapping("/book")
-    private ResponseEntity<String> removeBook(@RequestParam(name = "userId") Integer userId, @RequestParam(name = "bookId") Integer bookId) {
-        this.userRepository.findById(userId)
-                .ifPresent(user -> this.bookRepository.findById(bookId)
-                        .ifPresent(book -> {
-                            user.removeBook(book);
-                            this.userRepository.save(user);
-                        })
-                );
-        LOGGER.info("Book {} was removed from user {} library. ", bookId, userId);
-        return new ResponseEntity<>(String.format("Book, %s, was removed from user %s library.", bookId, userId), HttpStatus.ACCEPTED);
+    @DeleteMapping("/book/{bookId}")
+    private ResponseEntity<String> removeBook(@PathVariable String bookId) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User user = userRepository.findByUsername(auth.getName());
+
+        Book book = bookRepository.findById(Integer.parseInt(bookId)).orElseThrow(
+                () -> new EntityNotFoundException(String.format("Book not found with id: %s.", bookId))
+        );
+        
+        user.removeBook(book);
+
+        try {
+            this.userRepository.save(user);
+            LOGGER.info("'{}' was removed from {}'s library. ", book.getTitle(), user.getFullName());
+            return new ResponseEntity<>(String.format("'%s' was removed from %s's library.", book.getTitle(), user.getFullName()), HttpStatus.ACCEPTED);
+        } catch (UnexpectedRollbackException e) {
+            LOGGER.info("Unable to remove '{}' from {}'s library due to db error. ", book.getTitle(), user.getFullName());
+            return new ResponseEntity<>(String.format("Unable  to remove '%s' from %s's library due to db error.", book.getTitle(), user.getFullName()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
