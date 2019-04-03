@@ -109,12 +109,6 @@ public class PlanController {
         }
     }
 
-    @GetMapping("/books")
-    public List<Book> getAllBooksFromPlan(@RequestParam(name = "planId") Integer planId) {
-        Plan plan = planRepository.findById(planId).get();
-        return bookRepository.findAllByPlansContaining(plan);
-    }
-
     @PostMapping("/book")
     public ResponseEntity<String> addBookToPlan(@RequestBody @Valid BookDTO bookDTO, @RequestParam(name = "planId") Integer planId) {
         User user = userService.getAuthenticatedUser();
