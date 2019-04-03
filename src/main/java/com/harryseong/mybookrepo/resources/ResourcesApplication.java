@@ -35,8 +35,8 @@ public class ResourcesApplication {
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("BookDB API")
-                .description("API for the Angular front end of the Harry Seong BookDB application.")
+                .title("MyBookRepo Resource API")
+                .description("Resource API for the Angular front end of the MyBookRepo application.")
                 .contact(new Contact("Harry Seong",
                         "https://www.harryseong.com/",
                         "harryseong@gmail.com"))

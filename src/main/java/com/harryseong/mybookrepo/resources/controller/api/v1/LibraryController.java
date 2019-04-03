@@ -91,7 +91,7 @@ public class LibraryController {
         Book book = bookRepository.findById(Integer.parseInt(bookId)).orElseThrow(
                 () -> new EntityNotFoundException(String.format("Book not found with id: %s.", bookId))
         );
-        
+
         user.removeBook(book);
 
         try {
