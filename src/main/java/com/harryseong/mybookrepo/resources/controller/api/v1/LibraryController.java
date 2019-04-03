@@ -8,14 +8,13 @@ import com.harryseong.mybookrepo.resources.dto.BookDTO;
 import com.harryseong.mybookrepo.resources.repository.BookRepository;
 import com.harryseong.mybookrepo.resources.repository.RoleRepository;
 import com.harryseong.mybookrepo.resources.repository.UserRepository;
+import com.harryseong.mybookrepo.resources.service.AppUserDetailsService;
 import com.harryseong.mybookrepo.resources.service.BookService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.UnexpectedRollbackException;
 import org.springframework.web.bind.annotation.*;
 
@@ -40,30 +39,30 @@ public class LibraryController {
     RoleRepository roleRepository;
 
     @Autowired
+    AppUserDetailsService userService;
+
+    @Autowired
     UserRepository userRepository;
 
     @GetMapping("/books")
     public List<Book> getAllBooks() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = userRepository.findByUsername(auth.getName());
-        LOGGER.info("Fetching all books for {}.", auth.getName());
+        User user = userService.getAuthenticatedUser();
+        LOGGER.info("Fetching all books for {}.", user.getUsername());
 
         List<Book> books = new ArrayList<>();
         List<UserBook> userBooks = user.getBooks();
         userBooks.forEach(userBook -> books.add(userBook.getBook()));
-        LOGGER.info(books.toString());
         return books;
     }
 
     @PostMapping("/book")
     public ResponseEntity<String> addBook(@RequestBody @Valid BookDTO bookDTO) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = userRepository.findByUsername(auth.getName());
+        User user = userService.getAuthenticatedUser();
 
         // Check if book exists in DB by any of the book identification info.
         Book book = bookService.findBookByIdentifiers(bookDTO);
 
-        LOGGER.info("Add book, '{}', to {}'s library.", bookDTO.getTitle(), auth.getName());
+        LOGGER.info("Add book, '{}', to {}'s library.", bookDTO.getTitle(), user.getFullName());
 
         // Check if book already exists in user's library. If not, add book to user library.
         if (user.hasBook(book)) {
@@ -85,8 +84,7 @@ public class LibraryController {
 
     @DeleteMapping("/book/{bookId}")
     private ResponseEntity<String> removeBook(@PathVariable String bookId) {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        User user = userRepository.findByUsername(auth.getName());
+        User user = userService.getAuthenticatedUser();
 
         Book book = bookRepository.findById(Integer.parseInt(bookId)).orElseThrow(
                 () -> new EntityNotFoundException(String.format("Book not found with id: %s.", bookId))

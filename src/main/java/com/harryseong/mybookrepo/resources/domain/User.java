@@ -43,8 +43,7 @@ public class User {
     @JoinTable(name="user_role", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "role_id"))
     private List<Role> roles = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-    @JsonIgnore
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private List<Plan> plans = new ArrayList<>();
 
     @CreatedDate
@@ -181,6 +180,18 @@ public class User {
         this.plans = plans;
     }
 
+    public void addPlan(Plan plan) {
+        if (!plans.contains(plan)) {
+            plans.add(plan);
+        }
+    }
+
+    public void removePlan(Plan plan) {
+        if (plans.contains(plan)) {
+            plans.remove(plan);
+        }
+    }
+
     public Date getCreatedDate() {
         return createdDate;
     }
@@ -208,5 +219,19 @@ public class User {
     @Override
     public int hashCode() {
         return Objects.hash(username);
+    }
+
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
+                ", books=" + books +
+                ", plans=" + plans +
+                '}';
     }
 }

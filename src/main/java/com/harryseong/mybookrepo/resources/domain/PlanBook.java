@@ -9,11 +9,11 @@ public class PlanBook {
     @EmbeddedId
     private PlanBook_PK id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @MapsId("bookId")
     private Book book;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @MapsId("planId")
     private Plan plan;
 

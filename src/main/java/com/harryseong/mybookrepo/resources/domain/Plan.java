@@ -23,7 +23,8 @@ public class Plan {
     private Integer id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @MapsId("userId")
+    @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore
     private User user;
 
     @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
@@ -62,6 +63,7 @@ public class Plan {
     }
 
     public void setUser(User user) {
+        user.addPlan(this);
         this.user = user;
     }
 
@@ -132,5 +134,16 @@ public class Plan {
 
     public void setModifiedDate(Date modifiedDate) {
         this.modifiedDate = modifiedDate;
+    }
+
+    @Override
+    public String toString() {
+        return "Plan{" +
+            "id=" + id +
+//            ", user=" + user +
+            ", books=" + books +
+            ", name='" + name + '\'' +
+            ", description='" + description + '\'' +
+            '}';
     }
 }

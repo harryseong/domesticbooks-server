@@ -9,6 +9,7 @@ import com.harryseong.mybookrepo.resources.dto.PlanDTO;
 import com.harryseong.mybookrepo.resources.repository.BookRepository;
 import com.harryseong.mybookrepo.resources.repository.PlanRepository;
 import com.harryseong.mybookrepo.resources.repository.UserRepository;
+import com.harryseong.mybookrepo.resources.service.AppUserDetailsService;
 import com.harryseong.mybookrepo.resources.service.BookService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -36,15 +38,17 @@ public class PlanController {
     
     @Autowired
     PlanRepository planRepository;
+
+    @Autowired
+    AppUserDetailsService userService;
     
     @Autowired
     UserRepository userRepository;
 
-    @GetMapping("/{id}")
-    private Plan getPlan(@PathVariable Integer id) {
-        return planRepository.findById(id).orElseThrow(
-            () -> new EntityNotFoundException(String.format("Plan not found with id: %s.", id))
-        );
+    @GetMapping("")
+    private List<Plan> getAllPlans() {
+        User user = userService.getAuthenticatedUser();
+        return user.getPlans();
     }
 
     @PutMapping("/{id}")
@@ -67,36 +71,43 @@ public class PlanController {
     
     @DeleteMapping("/{id}")
     private ResponseEntity<String> deletePlan(@PathVariable Integer id) {
+        User user = userService.getAuthenticatedUser();
         Plan plan = this.planRepository.findById(id).orElseThrow(
             () -> new EntityNotFoundException(String.format("Plan not found with id: %s.", id))
         );
+        user.removePlan(plan);
 
         try {
-            planRepository.delete(plan);
+            userRepository.save(user);
             LOGGER.info("Plan deleted successfully: {}", plan.getName());
             return new ResponseEntity<>(String.format("Plan deleted successfully: %s", plan.getName()), HttpStatus.ACCEPTED);
         } catch (UnexpectedRollbackException e) {
             LOGGER.error("Unable to delete plan, {}, due to db error: {}", plan.getName(), e.getMostSpecificCause());
-            return new ResponseEntity<>(String.format("Unable to delete plan, %s", plan.getName()), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(String.format("Unable to delete plan, %s, due to db error.", plan.getName()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PostMapping("")
-    private ResponseEntity<String> savePlan(@RequestBody @Valid PlanDTO planDTO) {
+    private ResponseEntity<String> createPlan(@RequestBody @Valid PlanDTO planDTO) {
+        User user = userService.getAuthenticatedUser();
+
         Plan newPlan = new Plan();
         newPlan.setName(planDTO.getName());
         newPlan.setDescription(planDTO.getDescription());
+        newPlan.setUser(user);
+
+        LOGGER.info("{}", user);
+        LOGGER.info("{}", newPlan);
 
         try {
             this.planRepository.save(newPlan);
-            LOGGER.info("New plan saved successfully: {}", newPlan.getName());
-            return new ResponseEntity<>(String.format("New plan saved successfully: %s",  newPlan.getName()), HttpStatus.CREATED);
+            LOGGER.info("New plan, {}, saved successfully for user, {}.", newPlan.getName(), user.getUsername());
+            return new ResponseEntity<>(String.format("New plan, %s, saved successfully for user, %s.", newPlan.getName(), user.getUsername()), HttpStatus.CREATED);
         } catch (UnexpectedRollbackException e) {
-            LOGGER.error("Unable to save new plan, {}, due to db error: {}",  newPlan.getName(), e.getMostSpecificCause());
-            return new ResponseEntity<>(String.format("Unable to save new plan, %s",  newPlan.getName()), HttpStatus.INTERNAL_SERVER_ERROR);
+            LOGGER.error("Unable to save new plan, {}, for user, {}, due to db error: {}.", newPlan.getName(), user.getUsername(), e.getMostSpecificCause());
+            return new ResponseEntity<>(String.format("Unable to save new plan, %s, for user, %s, due to db error.",  newPlan.getName(), user.getUsername()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 
     @GetMapping("/books")
     public List<Book> getAllBooksFromPlan(@RequestParam(name = "planId") Integer planId) {
@@ -105,12 +116,12 @@ public class PlanController {
     }
 
     @PostMapping("/book")
-    public ResponseEntity<String> addBookToPlan(@RequestBody @Valid BookDTO bookDTO, @RequestParam(name = "userId") Integer userId, @RequestParam(name = "planId") Integer planId) {
+    public ResponseEntity<String> addBookToPlan(@RequestBody @Valid BookDTO bookDTO, @RequestParam(name = "planId") Integer planId) {
+        User user = userService.getAuthenticatedUser();
 
         // Check if book exists in DB by any of the book identification info.
         Book book = bookService.findBookByIdentifiers(bookDTO);
 
-        User user = userRepository.findById(userId).get();
         Plan plan = planRepository.findById(planId).orElseThrow(
             () -> new EntityNotFoundException(String.format("Plan not found with id: %s.", planId))
         );
