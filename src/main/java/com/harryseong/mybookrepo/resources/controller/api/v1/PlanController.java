@@ -8,6 +8,7 @@ import com.harryseong.mybookrepo.resources.domain.User;
 import com.harryseong.mybookrepo.resources.dto.BookDTO;
 import com.harryseong.mybookrepo.resources.dto.PlanDTO;
 import com.harryseong.mybookrepo.resources.repository.BookRepository;
+import com.harryseong.mybookrepo.resources.repository.PlanBookRepository;
 import com.harryseong.mybookrepo.resources.repository.PlanRepository;
 import com.harryseong.mybookrepo.resources.repository.UserRepository;
 import com.harryseong.mybookrepo.resources.service.AppUserDetailsService;
@@ -22,7 +23,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -41,6 +41,9 @@ public class PlanController {
     PlanRepository planRepository;
 
     @Autowired
+    PlanBookRepository planBookRepository;
+
+    @Autowired
     AppUserDetailsService userService;
     
     @Autowired
@@ -52,10 +55,10 @@ public class PlanController {
         return user.getPlans();
     }
 
-    @PutMapping("/{id}")
-    private ResponseEntity<String> updatePlan(@PathVariable Integer id, @RequestBody @Valid PlanDTO planDTO) {
-        Plan plan = this.planRepository.findById(id).orElseThrow(
-            () -> new EntityNotFoundException(String.format("Plan not found with id: %s.", id))
+    @PutMapping("/{planId}")
+    private ResponseEntity<String> updatePlan(@PathVariable Integer planId, @RequestBody @Valid PlanDTO planDTO) {
+        Plan plan = this.planRepository.findById(planId).orElseThrow(
+            () -> new EntityNotFoundException(String.format("Plan not found with id: %s.", planId))
         );
         plan.setName(planDTO.getName());
         plan.setDescription(planDTO.getDescription());
@@ -70,11 +73,11 @@ public class PlanController {
         }
     }
     
-    @DeleteMapping("/{id}")
-    private ResponseEntity<String> deletePlan(@PathVariable Integer id) {
+    @DeleteMapping("/{planId}")
+    private ResponseEntity<String> deletePlan(@PathVariable Integer planId) {
         User user = userService.getAuthenticatedUser();
-        Plan plan = this.planRepository.findById(id).orElseThrow(
-            () -> new EntityNotFoundException(String.format("Plan not found with id: %s.", id))
+        Plan plan = this.planRepository.findById(planId).orElseThrow(
+            () -> new EntityNotFoundException(String.format("Plan not found with id: %s.", planId))
         );
         user.removePlan(plan);
 
@@ -110,14 +113,22 @@ public class PlanController {
         }
     }
 
-    @PostMapping("/book/{planId}")
-    public ResponseEntity<String> addBookToPlan(@RequestBody @Valid BookDTO bookDTO, @PathVariable(name = "planId") String planId) {
+    @GetMapping("/{planId}/book")
+    private List<PlanBook> getAllPlanBooks(@PathVariable Integer planId) {
+        Plan plan = planRepository.findById(planId).orElseThrow(
+            () -> new EntityNotFoundException(String.format("Plan not found with id: %s.", planId))
+        );
+        return planBookRepository.findByPlan(plan);
+    }
+
+    @PostMapping("/{planId}/book")
+    public ResponseEntity<String> addBookToPlan(@RequestBody @Valid BookDTO bookDTO, @PathVariable Integer planId) {
         User user = userService.getAuthenticatedUser();
 
         // Check if book exists in DB by any of the book identification info.
         Book book = bookService.findBookByIdentifiers(bookDTO);
 
-        Plan plan = planRepository.findById(Integer.valueOf(planId)).orElseThrow(
+        Plan plan = planRepository.findById(planId).orElseThrow(
             () -> new EntityNotFoundException(String.format("Plan not found with id: %s.", planId))
         );
         
@@ -139,8 +150,8 @@ public class PlanController {
         }
     }
 
-    @DeleteMapping("/book")
-    private ResponseEntity<String> removeBookFromPlan(@RequestParam(name = "planId") Integer planId, @RequestParam(name = "bookId") Integer bookId) {
+    @DeleteMapping("/{planId}/book")
+    private ResponseEntity<String> removeBookFromPlan(@PathVariable Integer planId, @RequestParam(name = "bookId") Integer bookId) {
         this.planRepository.findById(planId)
             .ifPresent(plan -> this.bookRepository.findById(bookId)
                 .ifPresent(book -> {
