@@ -27,7 +27,8 @@ public class Plan {
     @JsonIgnore
     private User user;
 
-    @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "plan", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<PlanBook> books = new ArrayList<>();
 
     private String name;
@@ -75,10 +76,10 @@ public class Plan {
         this.books = books;
     }
 
-    public void addBook(Book book) {
+    public void addBook(Book book, Integer status) {
         PlanBook planBook = new PlanBook(book, this);
+        planBook.setStatus(status);
         books.add(planBook);
-        this.getBooks().add(planBook);
     }
 
     public void removeBook(Book book) {

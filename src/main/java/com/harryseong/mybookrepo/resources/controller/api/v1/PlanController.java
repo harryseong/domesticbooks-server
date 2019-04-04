@@ -3,6 +3,7 @@ package com.harryseong.mybookrepo.resources.controller.api.v1;
 import com.harryseong.mybookrepo.resources.ResourcesApplication;
 import com.harryseong.mybookrepo.resources.domain.Book;
 import com.harryseong.mybookrepo.resources.domain.Plan;
+import com.harryseong.mybookrepo.resources.domain.PlanBook;
 import com.harryseong.mybookrepo.resources.domain.User;
 import com.harryseong.mybookrepo.resources.dto.BookDTO;
 import com.harryseong.mybookrepo.resources.dto.PlanDTO;
@@ -109,38 +110,23 @@ public class PlanController {
         }
     }
 
-    @PostMapping("/book")
-    public ResponseEntity<String> addBookToPlan(@RequestBody @Valid BookDTO bookDTO, @RequestParam(name = "planId") Integer planId) {
+    @PostMapping("/book/{planId}")
+    public ResponseEntity<String> addBookToPlan(@RequestBody @Valid BookDTO bookDTO, @PathVariable(name = "planId") String planId) {
         User user = userService.getAuthenticatedUser();
 
         // Check if book exists in DB by any of the book identification info.
         Book book = bookService.findBookByIdentifiers(bookDTO);
 
-        Plan plan = planRepository.findById(planId).orElseThrow(
+        Plan plan = planRepository.findById(Integer.valueOf(planId)).orElseThrow(
             () -> new EntityNotFoundException(String.format("Plan not found with id: %s.", planId))
         );
-
-        // Secondary: Check if book already exists in user's library. If not, add book to user library.
-        if (user.getBooks().contains(book)) {
-            LOGGER.info("Book, {}, already in {}'s library.", book.getTitle(), user.getFullName());
-        } else {
-            user.addBook(book);
-
-            try {
-                userRepository.save(user);
-                LOGGER.info("Book, {}, added to {}'s library.", book.getTitle(), user.getFullName());
-            } catch (UnexpectedRollbackException e) {
-                LOGGER.error("Unable to add book, {}, to {}'s library due to db error: {}.", book.getTitle(), user.getFullName(), e.getMostSpecificCause());
-                return new ResponseEntity<>(String.format("Unable to add book, %s, to %s's library due to db error.", book.getTitle(), user.getFullName()), HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        }
         
         // Primary: Check if book already exists in plan. If not, add book to plan.
         if (plan.getBooks().contains(book)) {
             LOGGER.info("Book, {}, already in plan, {}.", book.getTitle(), plan.getName());
             return new ResponseEntity<>(String.format("Book, %s, already in %s's plan.", book.getTitle(), plan.getName()), HttpStatus.ACCEPTED);
         } else {
-            plan.addBook(book);
+            plan.addBook(book, 0);
 
             try {
                 planRepository.save(plan);
