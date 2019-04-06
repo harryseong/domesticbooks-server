@@ -21,11 +21,6 @@ public class BarcodeImageDecoder {
             BinaryBitmap bitmap = new BinaryBitmap(
                 new HybridBinarizer(new BufferedImageLuminanceSource(ImageIO.read(inputStream)))
             );
-            if (bitmap.getWidth() < bitmap.getHeight()) {
-                if (bitmap.isRotateSupported()) {
-                    bitmap = bitmap.rotateCounterClockwise();
-                }
-            }
             return decode(bitmap);
         } catch (IOException e) {
             throw new BarcodeDecodingException(e);

@@ -50,7 +50,7 @@ public class LibraryController {
     @Autowired
     UserRepository userRepository;
 
-    @GetMapping("/books")
+    @GetMapping("/book")
     public List<Book> getAllBooks() {
         User user = userService.getAuthenticatedUser();
         LOGGER.info("Fetching all books for {}.", user.getUsername());
@@ -110,7 +110,7 @@ public class LibraryController {
 
     @PostMapping("/book/barcode")
     private BarCodeInfo getBarCodeInfo() {
-        final File initialFile = new File("src/main/resources/images/test_barcode.jpg");
+        final File initialFile = new File("src/main/resources/images/test_barcode2.jpg");
         InputStream targetStream = null;
 
         try {

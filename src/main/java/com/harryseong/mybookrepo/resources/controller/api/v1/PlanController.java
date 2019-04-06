@@ -5,7 +5,6 @@ import com.harryseong.mybookrepo.resources.domain.Book;
 import com.harryseong.mybookrepo.resources.domain.Plan;
 import com.harryseong.mybookrepo.resources.domain.PlanBook;
 import com.harryseong.mybookrepo.resources.domain.User;
-import com.harryseong.mybookrepo.resources.dto.BookDTO;
 import com.harryseong.mybookrepo.resources.dto.PlanDTO;
 import com.harryseong.mybookrepo.resources.repository.BookRepository;
 import com.harryseong.mybookrepo.resources.repository.PlanBookRepository;
@@ -55,8 +54,11 @@ public class PlanController {
         return user.getPlans();
     }
 
-    @PutMapping("/{planId}")
-    private ResponseEntity<String> updatePlan(@PathVariable Integer planId, @RequestBody @Valid PlanDTO planDTO) {
+    @PutMapping("")
+    private ResponseEntity<String> updatePlan(
+            @RequestParam(name = "planId") Integer planId,
+            @RequestBody @Valid PlanDTO planDTO
+    ) {
         Plan plan = this.planRepository.findById(planId).orElseThrow(
             () -> new EntityNotFoundException(String.format("Plan not found with id: %s.", planId))
         );
@@ -73,8 +75,10 @@ public class PlanController {
         }
     }
     
-    @DeleteMapping("/{planId}")
-    private ResponseEntity<String> deletePlan(@PathVariable Integer planId) {
+    @DeleteMapping("")
+    private ResponseEntity<String> deletePlan(
+            @RequestParam(name = "planId") Integer planId
+    ) {
         User user = userService.getAuthenticatedUser();
         Plan plan = this.planRepository.findById(planId).orElseThrow(
             () -> new EntityNotFoundException(String.format("Plan not found with id: %s.", planId))
@@ -92,7 +96,9 @@ public class PlanController {
     }
 
     @PostMapping("")
-    private ResponseEntity<String> createPlan(@RequestBody @Valid PlanDTO planDTO) {
+    private ResponseEntity<String> createPlan(
+            @RequestBody @Valid PlanDTO planDTO
+    ) {
         User user = userService.getAuthenticatedUser();
 
         Plan newPlan = new Plan();
@@ -113,23 +119,27 @@ public class PlanController {
         }
     }
 
-    @GetMapping("/{planId}/book")
-    private List<PlanBook> getAllPlanBooks(@PathVariable Integer planId) {
+    @GetMapping("/book")
+    private List<PlanBook> getAllPlanBooks(
+            @RequestParam(name = "planId") Integer planId
+    ) {
         Plan plan = planRepository.findById(planId).orElseThrow(
             () -> new EntityNotFoundException(String.format("Plan not found with id: %s.", planId))
         );
         return planBookRepository.findByPlan(plan);
     }
 
-    @PostMapping("/{planId}/book")
-    public ResponseEntity<String> addBookToPlan(@RequestBody @Valid BookDTO bookDTO, @PathVariable Integer planId) {
-        User user = userService.getAuthenticatedUser();
-
-        // Check if book exists in DB by any of the book identification info.
-        Book book = bookService.findBookByIdentifiers(bookDTO);
-
+    @PostMapping("/book")
+    public ResponseEntity<String> addBookToPlan(
+            @RequestParam(name = "planId") Integer planId,
+            @RequestParam(name = "bookId") Integer bookId
+    ) {
         Plan plan = planRepository.findById(planId).orElseThrow(
             () -> new EntityNotFoundException(String.format("Plan not found with id: %s.", planId))
+        );
+
+        Book book = bookRepository.findById(bookId).orElseThrow(
+                () -> new EntityNotFoundException(String.format("Book not found with id: %s.", bookId))
         );
         
         // Primary: Check if book already exists in plan. If not, add book to plan.
@@ -150,16 +160,54 @@ public class PlanController {
         }
     }
 
-    @DeleteMapping("/{planId}/book")
-    private ResponseEntity<String> removeBookFromPlan(@PathVariable Integer planId, @RequestParam(name = "bookId") Integer bookId) {
-        this.planRepository.findById(planId)
-            .ifPresent(plan -> this.bookRepository.findById(bookId)
-                .ifPresent(book -> {
-                    plan.removeBook(book);
-                    this.planRepository.save(plan);
-                })
-            );
-        LOGGER.info("Book {} was removed from plan, {}. ", bookId, planId);
-        return new ResponseEntity<>(String.format("Book, %s, was removed from plan, %s.", bookId, planId), HttpStatus.ACCEPTED);
+    @PutMapping("/book")
+    public ResponseEntity<String> updateBookInPlan(
+            @RequestParam(name = "planId") Integer planId,
+            @RequestParam(name = "bookId") Integer bookId,
+            @RequestParam(name = "newStatus") Integer newStatus
+    ) {
+        Plan plan = planRepository.findById(planId).orElseThrow(
+                () -> new EntityNotFoundException(String.format("Plan not found with id: %s.", planId))
+        );
+
+        Book book = bookRepository.findById(bookId).orElseThrow(
+                () -> new EntityNotFoundException(String.format("Book not found with id: %s.", bookId))
+        );
+
+        PlanBook planBook = planBookRepository.findByPlanAndBook(plan, book);
+        planBook.setStatus(newStatus);
+
+        try {
+            planBookRepository.save(planBook);
+            LOGGER.info("Book, {}, status updated to {} in plan, {}.", planBook.getBook().getTitle(), newStatus, planBook.getPlan().getName());
+            return new ResponseEntity<>(String.format("Book, %s, status updated to %s in plan, %s.", planBook.getBook().getTitle(), newStatus, planBook.getPlan().getName()), HttpStatus.CREATED);
+        } catch (UnexpectedRollbackException e) {
+            LOGGER.error("Unable to update book, {}, status in plan, {}, due to db error: {}.", book.getTitle(), plan.getName(), e.getMostSpecificCause());
+            return new ResponseEntity<>(String.format("Unable to update book, %s, status in plan, %s, due to db error.", book.getTitle(), plan.getName()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DeleteMapping("/book")
+    private ResponseEntity<String> removeBookFromPlan(
+            @RequestParam(name = "planId") Integer planId,
+            @RequestParam(name = "bookId") Integer bookId
+    ) {
+        Plan plan = planRepository.findById(planId).orElseThrow(
+            () -> new EntityNotFoundException(String.format("Plan not found with id: %s.", planId))
+        );
+
+        Book book = bookRepository.findById(bookId).orElseThrow(
+            () -> new EntityNotFoundException(String.format("Book not found with id: %s.", bookId))
+        );
+
+        plan.removeBook(book);
+        try {
+            this.planRepository.save(plan);
+            LOGGER.info("Book, {}, removed from plan, {}.", book.getTitle(), plan.getName());
+            return new ResponseEntity<>(String.format("Book, %s, removed from plan, %s.", book.getTitle(), plan.getName()), HttpStatus.ACCEPTED);
+        } catch (UnexpectedRollbackException e) {
+            LOGGER.error("Unable to remove book, {}, from plan, {}, due to db error: {}.", book.getTitle(), plan.getName(), e.getMostSpecificCause());
+            return new ResponseEntity<>(String.format("Unable to remove book, %s, from plan, %s, due to db error.", book.getTitle(), plan.getName()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
