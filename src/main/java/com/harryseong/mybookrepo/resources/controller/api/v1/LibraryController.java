@@ -44,7 +44,7 @@ public class LibraryController {
     @Autowired
     UserRepository userRepository;
 
-    @GetMapping("/books")
+    @GetMapping("/book")
     public List<Book> getAllBooks() {
         User user = userService.getAuthenticatedUser();
         LOGGER.info("Fetching all books for {}.", user.getUsername());
@@ -99,6 +99,26 @@ public class LibraryController {
         } catch (UnexpectedRollbackException e) {
             LOGGER.info("Unable to remove '{}' from {}'s library due to db error. ", book.getTitle(), user.getFullName());
             return new ResponseEntity<>(String.format("Unable  to remove '%s' from %s's library due to db error.", book.getTitle(), user.getFullName()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/book/barcode")
+    private BarCodeInfo getBarCodeInfo() {
+        final File initialFile = new File("src/main/resources/images/test_barcode2.jpg");
+        InputStream targetStream = null;
+
+        try {
+            targetStream = new DataInputStream(new FileInputStream(initialFile));
+        } catch(IOException e) {
+            LOGGER.error("IO Error: {}", e.getMessage());
+            return new BarCodeInfo("The image file could not be properly retrieved.", "ERROR");
+        }
+
+        try {
+            return barcodeImageDecoder.decodeImage(targetStream);
+        } catch(BarcodeImageDecoder.BarcodeDecodingException e) {
+            LOGGER.error("Barcode decoding exception error: {}", e.getMessage());
+            return new BarCodeInfo("No barcodes were found in image.", "ERROR");
         }
     }
 }
