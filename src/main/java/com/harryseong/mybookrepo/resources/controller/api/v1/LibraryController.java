@@ -1,6 +1,7 @@
 package com.harryseong.mybookrepo.resources.controller.api.v1;
 
 import com.harryseong.mybookrepo.resources.ResourcesApplication;
+import com.harryseong.mybookrepo.resources.domain.BarCodeInfo;
 import com.harryseong.mybookrepo.resources.domain.Book;
 import com.harryseong.mybookrepo.resources.domain.User;
 import com.harryseong.mybookrepo.resources.domain.UserBook;
@@ -9,6 +10,7 @@ import com.harryseong.mybookrepo.resources.repository.BookRepository;
 import com.harryseong.mybookrepo.resources.repository.RoleRepository;
 import com.harryseong.mybookrepo.resources.repository.UserRepository;
 import com.harryseong.mybookrepo.resources.service.AppUserDetailsService;
+import com.harryseong.mybookrepo.resources.service.BarcodeImageDecoder;
 import com.harryseong.mybookrepo.resources.service.BookService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityNotFoundException;
 import javax.validation.Valid;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +31,9 @@ import java.util.List;
 @RequestMapping("/api/v1/library")
 public class LibraryController {
     private static final Logger LOGGER = LoggerFactory.getLogger(ResourcesApplication.class);
+
+    @Autowired
+    BarcodeImageDecoder barcodeImageDecoder;
 
     @Autowired
     BookService bookService;
