@@ -143,9 +143,9 @@ public class PlanController {
         );
         
         // Primary: Check if book already exists in plan. If not, add book to plan.
-        if (plan.getBooks().contains(book)) {
+        if (planBookRepository.findByPlanAndBook(plan, book) != null) {
             LOGGER.info("Book, {}, already in plan, {}.", book.getTitle(), plan.getName());
-            return new ResponseEntity<>(String.format("Book, %s, already in %s's plan.", book.getTitle(), plan.getName()), HttpStatus.ACCEPTED);
+            return new ResponseEntity<>(String.format("Book, %s, already in %s's plan.", book.getTitle(), plan.getName()), HttpStatus.CONFLICT);
         } else {
             plan.addBook(book, 0);
 
